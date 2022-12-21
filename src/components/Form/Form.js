@@ -1,22 +1,26 @@
+import "./Form.css";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { filterGamesByTitle, filterGamesByPlatform } from "../../helpers/filterGames";
+import {games} from "../../data/games";
 
 const Form = () => {
     const [inputs, setInputs] = useState([
         {
             id: "title",
             value: "",
-            label: "TITLE",
+            label: "Title",
             filter: filterGamesByTitle
         },
         {
             id: "platforms",
             value: "",
-            label: "PLATFORM",
+            label: "Platform",
             filter: filterGamesByPlatform
         },
     ]);
+
+    let dispatch = useDispatch();
 
     const onInputChanged = (event) => {
         let copy = [...inputs];
@@ -29,23 +33,32 @@ const Form = () => {
     }
 
     const inputsToBeRendered = inputs.map(objectFromStateArray => {
-        return (<div>
-            <label htmlFor={objectFromStateArray.id}>{objectFromStateArray.label}</label>
-            <input onChange={onInputChanged} id={objectFromStateArray.id} type="text" value={objectFromStateArray.value} />
+        return (
+        <div key={objectFromStateArray.id} className="form__wrapper">
+            <label className="form__label" htmlFor={objectFromStateArray.id}>{objectFromStateArray.label}</label>
+            <input className="form__input" onChange={onInputChanged} id={objectFromStateArray.id} type="text" value={objectFromStateArray.value} />
         </div>);
     })
 
     const submit = (event) => {
         event.preventDefault();
-        inputs.forEach(input => {
-            console.log(input.filter(input.value));
+        let result = games;//[a,b,c,d]
+        inputs.forEach( input => {
+            //[a,b,c,d]=> [a,b] => [a]
+            result = input.filter(input.value, result);
+        });
+        dispatch({
+            type: "FILTEREDGAMES",
+            payload: result
         })
     }
 
     return (
-        <form onSubmit={submit}>
+        <form className="form" onSubmit={submit}>
+            <div className="form__inputsWrapper">
             {inputsToBeRendered}
-            <button onClick={submit}>Zoeken</button>
+            </div>         
+            <button className="form__search" onClick={submit}>Zoeken</button>
         </form>
     )
 }
